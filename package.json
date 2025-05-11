@@ -1,0 +1,14 @@
+{
+  "name": "natours-api",
+  "version": "1.0.0",
+  "description": "It is an API for my natours website, built with nodeJS and mongoDB as database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "NOOR_ALI",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NoorNGI/natours-API/issues"
+  }
+}
