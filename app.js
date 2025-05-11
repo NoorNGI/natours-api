@@ -1,10 +1,26 @@
-import http from "http";
+import express from "express";
+import toursRouter from "./routes/toursRouter.js";
+import morgan from "morgan";
 
-const server = http.createServer((req, res) => {
-  console.log("Hello from the server.");
-  res.end("Hello from the server");
+const app = express();
+
+// thirdPary middleWares
+
+// to serve static files...
+app.use(express.json());
+
+app.use(morgan("dev"));
+
+// custom middleware...
+app.use((req, res, next) => {
+  const requestedTime = new Date().toISOString();
+
+  req.requestedTime = requestedTime;
+  next();
 });
 
-server.listen(8000, (err) => {
-  console.log("server is listening on port 8000");
-});
+// Routes
+app.use("/api/v1/tours", toursRouter);
+app.use("/api/v1/users", toursRouter);
+
+export default app;
