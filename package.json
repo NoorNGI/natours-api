@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "It is an API for my natours website, built with nodeJS and mongoDB as database.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon index.js"
   },
   "author": "NOOR_ALI",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/NoorNGI/natours-API/issues"
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
   }
 }
