@@ -1,15 +1,22 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import toursRouter from "./routes/toursRouter.js";
 import morgan from "morgan";
 
 const app = express();
 
+// const router = express.Router();
+
+// router.param('id', checkId)
+
 // thirdPary middleWares
 
 // to serve static files...
 app.use(express.json());
 
-app.use(morgan("dev"));
+if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 // custom middleware...
 app.use((req, res, next) => {
@@ -18,6 +25,9 @@ app.use((req, res, next) => {
   req.requestedTime = requestedTime;
   next();
 });
+
+// serving static files present in public folder on browser route "/static"
+app.use("/static", express.static(`./public`));
 
 // Routes
 app.use("/api/v1/tours", toursRouter);
