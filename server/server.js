@@ -4,17 +4,23 @@ dotenv.config();
 import mongoose from "mongoose";
 import app from "../app.js";
 
+// connection to database...
 const DB = process.env.DATABASE_URL.replace(
   "<PASSWORD>",
   process.env.DATABASE_PASSWORD
 );
 
-console.log(DB, "db..");
-mongoose.connect(DB).then((con) => {
-  console.log(con, "---con");
-  console.log("DB connection successful");
-});
+mongoose
+  .connect(DB)
+  .then(() => {
+    console.log("DB Connection successful.. ✅");
+  })
+  .catch((err) => {
+    console.log("DB Connection failed.. 💥");
+    console.log(err);
+  });
 
+// starting the server...
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, (err) => {

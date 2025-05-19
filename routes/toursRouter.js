@@ -1,14 +1,16 @@
 import express from "express";
-import { createNewTour, getAllTours } from "../controllers/toursController.js";
+import {
+  createNewTour,
+  deleteTour,
+  getAllTours,
+  getTour,
+  updateTour,
+} from "../controllers/toursController.js";
 
 const router = express.Router();
 
 router.route("/").get(getAllTours).post(createNewTour);
 
-router
-  .route("/:id")
-  .get((req, res) => console.log("/get-tour-by-id"))
-  .patch((req, res) => console.log("/edit a tour by id"))
-  .delete((req, res) => console.log("/delete a tour by id"));
+router.route("/:id").get(getTour).patch(updateTour).delete(deleteTour);
 
 export default router;
