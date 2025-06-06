@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import toursRouter from "./routes/toursRouter.js";
 import morgan from "morgan";
+import qs from "qs";
 
 const app = express();
 
@@ -11,7 +12,12 @@ const app = express();
 
 // router.param('id', checkId)
 
-// thirdPary middleWares
+// third party middleWares
+
+app.use(express.urlencoded({ extended: true }));
+
+// Replace the default query parser
+app.set("query parser", (str) => qs.parse(str));
 
 // to serve static files...
 app.use(express.json());

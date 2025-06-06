@@ -1,20 +1,42 @@
 import fs from "fs";
 import Tour from "../models/ToursModel.js";
+import { APIFeatures } from "../utils/apiFeatures.js";
 
-const tours = JSON.parse(
-  fs.readFileSync("./dev-data/data/tours-simple.json", "utf-8", (err) => {
-    console.log(err, "error");
-  })
-);
+// const tours = JSON.parse(
+//   fs.readFileSync("./dev-data/data/tours-simple.json", "utf-8", (err) => {
+//     console.log(err, "error");
+//   })
+// );
+
+export const aliasTopTours = async (req, res, next) => {
+  // req.query.limit = "5";
+  // req.query.sort = "-ratingsAverage,price";
+  // req.query.fields = "name,price,ratingsAverage,summary,difficulty";
+
+  req.url +=
+    "?limit=5&sort=-ratingsAverage,price&fields=name,price,ratingsAverage,summary,difficulty";
+
+  next();
+};
 
 export const getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    // ---------- BUILDING UP THE QUERY ----------------
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const tours = await features.query;
 
     res.status(200).json({
       status: "success",
       requestedTime: req.requestedTime,
-      data: tours,
+      results: tours?.length,
+      data: {
+        tours,
+      },
     });
   } catch (err) {
     res.status(404).json({
@@ -101,3 +123,98 @@ export const deleteTour = async (req, res) => {
     });
   }
 };
+
+/////////// OLD ///////////////
+
+// export const getAllTours = async (req, res) => {
+//   // const queryStr = JSON.parse(req.query).console.log(req.query);
+//   console.log(req.query);
+//   try {
+//     // ---------- BUILDING UP THE QUERY ----------------
+//     let query;
+//     const queryObj = { ...req.query };
+
+//     // 1a) BASIC FILTERING...
+//     const excludedFields = ["page", "limit", "sort", "fields"];
+//     excludedFields.forEach((el) => delete queryObj[el]);
+
+//     // 1b) ADVANCE FILTERING...
+
+//     // ?sort=price&difficulty[gte]=easy --> query params...
+//     // { sort: 'price', difficulty: { gte: 'easy' } } --> getting this
+//     // { sort: 'price', difficulty: { $gte: 'easy' } } --> want this
+
+//     let queryString = JSON.stringify(queryObj);
+//     queryString = queryString.replace(
+//       /\b(gt|gte|lt|lte)\b/g,
+//       (match) => `$${match}`
+//     );
+
+//     query = Tour.find(JSON.parse(queryString));
+
+//     // 2) SORTING
+//     // ?sort=price,-duration...
+//     if (req.query.sort) {
+//       const sortBy = req.query.sort.split(",").join(" ");
+//       query = query.sort(sortBy);
+
+//       // query.sort('price -ratingsAverage')
+//     } else {
+//       query = query.sort("-createdAt");
+//     }
+
+//     // 2) FIELDS LIMITING
+//     // ?fields=name,price,-duration
+//     if (req.query.fields) {
+//       const fields = req.query.fields.split(",").join(" ");
+//       query = query.select(fields);
+//     } else {
+//       query = query.select("-__v");
+//     }
+
+//     // 4) PAGINATION
+//     // ?page=2&limit=10 --> 1-10, 11-20, 21-30
+//     const page = req.query.page * 1 || 1;
+//     const limit = req.query.limit * 1 || 100;
+//     const skip = (page - 1) * limit;
+
+//     query = query.skip(skip).limit(limit);
+
+//     if (req.query.page) {
+//       const numOfTours = await Tour.countDocuments();
+//       if (skip >= numOfTours) throw new Error("This page does not exist.");
+//     }
+
+//     // ---------- CONSUMING UP THE QUERY ----------------
+
+//     // const tours = await Tour.find({
+//     //   duration: 5,
+//     //   price: { $gte: 500 },
+//     //   difficulty: "easy",
+//     // });
+
+//     // const tours = await Tour.find()
+//     //   .where("difficulty")
+//     //   .equals("easy")
+//     //   .where("duration")
+//     //   .equals(5)
+//     //   .where("price")
+//     //   .gte(500);
+
+//     // --------------------- BOTH ARE SAME IN MONGOOSE ---------------------- //
+
+//     const tours = await query;
+
+//     res.status(200).json({
+//       status: "success",
+//       requestedTime: req.requestedTime,
+//       totalRecords: tours?.length,
+//       data: tours,
+//     });
+//   } catch (err) {
+//     res.status(404).json({
+//       status: "failed",
+//       message: err,
+//     });
+//   }
+// };
