@@ -5,6 +5,8 @@ import express from "express";
 import toursRouter from "./routes/toursRouter.js";
 import morgan from "morgan";
 import qs from "qs";
+import { APIError } from "./utils/apiError.js";
+import { errorController } from "./controllers/errorController.js";
 
 const app = express();
 
@@ -38,5 +40,20 @@ app.use("/static", express.static(`./public`));
 // Routes
 app.use("/api/v1/tours", toursRouter);
 app.use("/api/v1/users", toursRouter);
+
+app.use((req, res, next) => {
+  // res.status(404).json({
+  //   status: "fail",
+  //   message: `Can't find ${req.originalUrl} on this server!`,
+  // });
+
+  // const err = new Error(`Can't find ${req.originalUrl} on this server!`);
+  // err.statusCode = 404;
+  // err.status = "failed";
+
+  next(new APIError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+app.use(errorController);
 
 export default app;

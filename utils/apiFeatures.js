@@ -9,7 +9,6 @@ export class APIFeatures {
   // 1) FILTERING
   filter() {
     const queryObj = { ...this.queryString };
-    console.log(queryObj);
 
     // 1a) BASIC FILTERING...
     const excludedFields = ["page", "limit", "sort", "fields"];
