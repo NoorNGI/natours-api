@@ -54,6 +54,7 @@ app.use((req, res, next) => {
   next(new APIError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
+// global error controller...
 app.use(errorController);
 
 export default app;
