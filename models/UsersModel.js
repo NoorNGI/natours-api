@@ -21,6 +21,7 @@ const userSchema = new Schema({
     type: String,
     required: [true, "Please provide a password"],
     minLength: [8, "Password must be at lease 8 characters long"],
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -47,6 +48,15 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
 });
+
+// instance methods (will have access to the current document)...
+userSchema.methods.checkPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  // this.password will not work because we added select property to false in the schema.
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 const User = model("User", userSchema);
 
