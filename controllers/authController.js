@@ -59,5 +59,8 @@ export const login = catchAsync(async (req, res, next) => {
 });
 
 export const protect = catchAsync(async (req, res, next) => {
+  // 1) getting token from header and checking if exists
+
+  // 2)
   next();
 });
