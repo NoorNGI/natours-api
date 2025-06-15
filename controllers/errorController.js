@@ -1,3 +1,29 @@
+import { APIError } from "../utils/apiError.js";
+
+const handleCastErrorDB = (err) => {
+  const message = `Invalid ${err.path}: ${err.value}`;
+  return new APIError(message, 400);
+};
+
+const handleDuplicateFieldsDB = (err) => {
+  const value = err?.errorResponse?.errmsg.match(/\{([^}]+)\}/)[0];
+  const message = `Duplicate field name --> ${value}`;
+
+  return new APIError(message, 400);
+};
+
+const handleValidationErrorDB = (err) => {
+  const errors = Object.values(err.errors)
+    .map((obj) => obj?.properties?.message)
+    .join(", ");
+
+  const message = `Validation Error: ${errors}`;
+
+  return new APIError(message, 400);
+};
+
+// ================ X X X X X X X X X =======================//
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -28,10 +54,7 @@ const sendErrorProd = (err, res) => {
   }
 };
 
-const handleCastErrorDb = (err) => {
-  const message = `Invalid ${err.path}: ${err.value}`;
-  return new AppError(message, 400);
-};
+// ================ X X X X X X X X X =======================//
 
 export const errorController = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
@@ -40,9 +63,15 @@ export const errorController = (err, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
-    let error = { ...err };
+    let error = { ...err, message: err.message };
 
-    if (error.name === "CastError") error = handleCastErrorDb(error);
+    // invalid database ID's
+    if (error?.kind === "ObjectId") error = handleCastErrorDB(error);
+    // duplicate fields error
+    if (error?.code === 11000) error = handleDuplicateFieldsDB(error);
+    // mongoose validation errors
+    if (error?._message?.includes("validation failed"))
+      error = handleValidationErrorDB(error);
 
     sendErrorProd(error, res);
   }

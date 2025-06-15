@@ -1,16 +1,21 @@
 import express from "express";
+import { signup } from "../controllers/authController.js";
 
 const router = express.Router();
 
-router
-  .route("/")
-  .get((req, res) => console.log("/getAllUsers"))
-  .post((req, res) => console.log("/createUser"));
+// auth operations routes, (signup, signin)
+router.post("/signup", signup);
 
-router
-  .route("/:id")
-  .get((req, res) => console.log("/get-user-by-id"))
-  .patch((req, res) => console.log("/edit a user by id"))
-  .delete((req, res) => console.log("/delete a user by id"));
+// other routes
+// router
+//   .route("/")
+//   .get((req, res) => console.log("/getAllUsers"))
+//   .post();
+
+// router
+//   .route("/:id")
+//   .get((req, res) => console.log("/get-user-by-id"))
+//   .patch((req, res) => console.log("/edit a user by id"))
+//   .delete((req, res) => console.log("/delete a user by id"));
 
 export default router;
