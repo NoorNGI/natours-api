@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import slugify from "slugify";
+import validator from "validator";
 
 const toursSchema = new Schema(
   {
@@ -10,6 +11,10 @@ const toursSchema = new Schema(
       trim: true,
       maxLength: [40, "Tour name must have lesser or equal to 40 characters"],
       minLength: [10, "Tour name must have greater or equal to 10 characters"],
+      // validate: {
+      //   validator: validator.isAlpha,
+      //   message: "Tour name should only contain alphabets",
+      // },
     },
     duration: {
       type: Number,
@@ -99,7 +104,7 @@ toursSchema.virtual("durationWeeks").get(function () {
  * POST middleware runs after the specific event.
  */
 
-// ============ DOCUMENT MIDDLEWARE (save, create) ========== //
+// ============ DOCUMENT MIDDLEWARE (.save(), .create()) ========== //
 toursSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
