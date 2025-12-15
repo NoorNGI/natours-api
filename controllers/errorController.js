@@ -22,6 +22,12 @@ const handleValidationErrorDB = (err) => {
   return new APIError(message, 400);
 };
 
+const handleJWTError = (err) =>
+  new APIError("Invalid token. Please log in again!", 401);
+
+const handleJWTExpiredError = (err) =>
+  new APIError("Your token is expired. Please log in again!", 401);
+
 // ================ X X X X X X X X X =======================//
 
 const sendErrorDev = (err, res) => {
@@ -72,6 +78,9 @@ export const errorController = (err, req, res, next) => {
     // mongoose validation errors
     if (error?._message?.includes("validation failed"))
       error = handleValidationErrorDB(error);
+    if (error?.name === "JsonWebTokenError") error = handleJWTError(error);
+    if (error?.name === "TokenExpiredError")
+      error = handleJWTExpiredError(error);
 
     sendErrorProd(error, res);
   }
