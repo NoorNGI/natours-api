@@ -54,7 +54,7 @@ export const login = catchAsync(async (req, res, next) => {
   });
 });
 
-// Controller for protected routes to check the authorization of user before performing any action....
+// Controller for protected routes to check the authentication of user before performing any action....
 export const protect = catchAsync(async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -98,6 +98,7 @@ export const protect = catchAsync(async (req, res, next) => {
   next();
 });
 
+// Controller to check the authorization of the user based on the roles...
 export const restrictTo =
   (...allowedRoles) =>
   (req, res, next) => {
