@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { model, Schema } from "mongoose";
 import validator from "validator";
 
@@ -42,6 +43,13 @@ const usersSchema = new Schema({
     select: false,
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 // ---------------- MIDDLEWARES ------------------- //
@@ -57,6 +65,21 @@ usersSchema.pre("save", async function (next) {
 
   // delete the passwordConfirm field, basically not be persisted in the DB...
   this.passwordConfirm = undefined;
+  next();
+});
+
+usersSchema.pre("save", function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+
+  next();
+});
+
+usersSchema.pre(/^find/, function (next) {
+  // this keyword refers to the current query...
+  this.find({ active: { $ne: false } });
+
   next();
 });
 
@@ -86,6 +109,25 @@ usersSchema.methods.passwordChangedAfter = function (JWTTimeStamp) {
   }
 
   return false;
+};
+
+usersSchema.methods.createResetPasswordToken = function () {
+  // generate a random string reset token.
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  // update the db field with hashed reset token.
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // update the db field with expiry date for the reset token.
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 min.
+
+  // NOTE: this will not save the document in db automatically we have to save the document manually by running the .save() method from mongoose...
+
+  // return the reset token, (not encrypted one)
+  return resetToken;
 };
 
 // ------------------------------------------------ //
